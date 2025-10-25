@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Quizify</title>
+  <link rel="stylesheet" href="styles.css?v=1.1">
+</head>
+<body class="landing">
+  <div class="container">
+    <div class="card center" style="flex-direction:column;gap:12px;padding:48px;max-width:720px;margin:24px auto;text-align:center">
+  <h1 style="font-size:40px;margin:0">Quizify</h1>
+  <p class="meta hero-copy" style="max-width:640px">Welcome to Quizify — short, fun, category-based quizzes to test your knowledge. Choose a category and challenge yourself.</p>
+      <!-- Get Started removed: users must register and sign in first -->
+
+      <!-- Auth area: login shown by default; register can be toggled -->
+      <div style="margin-top:18px;width:100%;max-width:520px;text-align:left">
+        <div id="authArea" style="background:rgba(250,250,250,0.6);padding:12px;border-radius:8px;border:1px solid rgba(0,0,0,0.04)">
+          <!-- Login form -->
+          <form id="loginForm" style="display:block">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <input id="loginUser" placeholder="Username" required style="padding:8px;border-radius:6px;border:1px solid #d2d6dc" />
+              <input id="loginPass" placeholder="Password" type="password" required style="padding:8px;border-radius:6px;border:1px solid #d2d6dc" />
+              <div style="display:flex;gap:8px;justify-content:flex-end">
+                <button type="submit" class="btn">Sign in</button>
+              </div>
+            </div>
+          </form>
+          <!-- Register form -->
+          <form id="registerForm" style="display:none">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <input id="regUser" placeholder="Username" required style="padding:8px;border-radius:6px;border:1px solid #d2d6dc" />
+              <input id="regPass" placeholder="Password" type="password" required style="padding:8px;border-radius:6px;border:1px solid #d2d6dc" />
+              <div style="display:flex;gap:8px;justify-content:flex-end">
+                <button type="submit" class="btn">Create account</button>
+              </div>
+            </div>
+          </form>
+            <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center">
+            <div id="authMsg" style="color:#0b1220"></div>
+            <a id="toggleRegister" href="#" style="font-size:13px;color:#0b1220;text-decoration:underline"></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Inline critical landing styles to bypass cached CSS if needed -->
+  <style>
+    body.landing{background-image:linear-gradient(180deg,rgba(255,255,255,0.85),rgba(250,250,250,0.9)),url('https://images.unsplash.com/photo-1523978591478-c753949ff840?auto=format&fit=crop&w=1600&q=60');background-size:cover;background-position:center;color:#0b1220}
+    body.landing .card{background:rgba(255,255,255,0.96);color:#08111a;border:1px solid rgba(4,6,10,0.06);box-shadow:0 10px 30px rgba(2,6,23,0.06)}
+    .hero-copy{color:#0b1220;font-size:18px;line-height:1.5;font-weight:500;margin:0}
+    .btn{background:#0b1220;color:#fff;border:none;padding:12px 18px;border-radius:10px;text-decoration:none;text-transform:uppercase;font-weight:600;letter-spacing:0.6px}
+    .btn:hover{transform:translateY(-3px);opacity:0.95}
+  </style>
+  <!-- temporary badge to confirm stylesheet version -->
+  <div id="cssBadge" style="position:fixed;right:10px;bottom:10px;background:rgba(11,18,32,0.85);color:#fff;padding:6px 8px;border-radius:6px;font-size:12px;z-index:99999;box-shadow:0 6px 16px rgba(2,6,23,0.3)">styles v1.1</div>
+  <script>
+    // Minimal client-side auth wiring: login shown by default. Toggle register and redirect to home on success.
+    (function(){
+      const loginForm = document.getElementById('loginForm');
+      const registerForm = document.getElementById('registerForm');
+      const authMsg = document.getElementById('authMsg');
+      const toggleRegister = document.getElementById('toggleRegister');
+
+      function show(msg,ok){
+        authMsg.textContent = msg || '';
+        authMsg.style.color = ok ? '#0b1220' : '#b91c1c';
+      }
+
+      // toggle between login and register. Display text depending on visible form.
+      const toggleRegisterLink = toggleRegister;
+      function updateToggleText(){
+        // if register visible, show 'Sign in' to allow returning to login
+        const regVisible = registerForm.style.display === 'block';
+        toggleRegisterLink.textContent = regVisible ? 'Sign in' : 'Create an account';
+      }
+      // initialize text
+      if(!registerForm.style.display) registerForm.style.display = 'none';
+      if(!loginForm.style.display) loginForm.style.display = 'block';
+      updateToggleText();
+
+      toggleRegisterLink.addEventListener('click', (ev)=>{
+        ev.preventDefault();
+        const regVisible = registerForm.style.display === 'block';
+        if(regVisible){
+          // switch to login
+          registerForm.style.display = 'none';
+          loginForm.style.display = 'block';
+          show('');
+        } else {
+          // switch to register
+          loginForm.style.display = 'none';
+          registerForm.style.display = 'block';
+          show('');
+        }
+        updateToggleText();
+      });
+
+  // For local development, force API base to the local server to avoid file:// origin issues
+  const API_BASE = 'http://localhost:3001';
+  console.log('Using API_BASE =', API_BASE);
+
+      // resilient fetch: try primary host then fallback to 127.0.0.1
+      async function apiFetch(path, opts){
+  const primary = API_BASE + path;
+  const fallback = 'http://127.0.0.1:3001' + path;
+        console.log('apiFetch primary=', primary);
+        try{
+          const r = await fetch(primary, opts);
+          console.log('apiFetch response status', r.status);
+          return r;
+        }catch(e){
+          console.warn('apiFetch primary failed, trying fallback', e && e.message);
+          try{ const r2 = await fetch(fallback, opts); console.log('apiFetch fallback status', r2.status); return r2; }
+          catch(e2){ console.error('apiFetch fallback failed', e2 && e2.message); throw e2; }
+        }
+      }
+
+      loginForm.addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        show('Signing in...');
+        const username = document.getElementById('loginUser').value.trim();
+        const password = document.getElementById('loginPass').value;
+        try{
+          const res = await apiFetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});
+          const txt = await res.text();
+          let data = null;
+          try{ data = txt ? JSON.parse(txt) : null; } catch(e){ data = { error: txt || 'Invalid server response' }; }
+          if(res.ok){
+            if(data && data.token) localStorage.setItem('quizify_token', data.token);
+            show('Signed in as ' + (data && data.username ? data.username : username), true);
+            // redirect to server-hosted home page after successful sign in
+            setTimeout(()=>{ window.location.href = API_BASE + '/home.html'; }, 200);
+          } else {
+            show((data && (data.error || data.message)) || txt || 'Login failed', false);
+          }
+        } catch(err){ show('Network error: ' + (err && err.message ? err.message : String(err)), false); }
+      });
+
+      registerForm.addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        show('Creating account...');
+        const username = document.getElementById('regUser').value.trim();
+        const password = document.getElementById('regPass').value;
+        try{
+          const res = await apiFetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});
+          const txt = await res.text();
+          let data = null;
+          try{ data = txt ? JSON.parse(txt) : null; } catch(e){ data = { error: txt || 'Invalid server response' }; }
+          if(res.ok){
+            if(data && data.token) localStorage.setItem('quizify_token', data.token);
+            show('Account created. Redirecting...', true);
+            setTimeout(()=>{ window.location.href = API_BASE + '/home.html'; }, 200);
+          } else {
+            show((data && (data.error || data.message)) || txt || 'Register failed', false);
+          }
+        } catch(err){ show('Network error: ' + (err && err.message ? err.message : String(err)), false); }
+      });
+
+    })();
+  </script>
+</body>
+</html>

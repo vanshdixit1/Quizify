@@ -1,0 +1,120 @@
+*{box-sizing:border-box;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial}
+:root{--bg:#0f172a;--card:#0b1220;--muted:#94a3b8;--accent:#06b6d4;--success:#16a34a}
+html,body{height:100%;background:linear-gradient(180deg,#071133 0%,#071a2a 100%);color:#e6eef8}
+/* remove default browser margin and top gap */
+body{margin:0}
+.container{max-width:900px;margin:0 auto;padding:24px}
+.card{background:rgba(255,255,255,0.03);border-radius:12px;padding:24px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.title{font-size:20px;font-weight:600}
+.meta{color:var(--muted);font-size:13px}
+.timer-display{font-weight:700;color:var(--accent)}
+.question{font-size:18px;margin:18px 0}
+.countdown-bar{height:8px;background:rgba(255,255,255,0.04);border-radius:999px;overflow:hidden}
+.countdown-bar > i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--accent),#7c3aed);transition:width 0.12s linear}
+.countdown-bar.paused > i{opacity:0.6;filter:grayscale(0.4)}
+.small label{cursor:pointer}
+
+.settings-btn{padding:6px 10px;font-size:13px}
+.settings-btn{display:none}
+#settingsModal button{min-width:120px}
+#settingsModal{display:none}
+.answers{display:grid;grid-template-columns:1fr;gap:10px}
+.btn{display:inline-block;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit;cursor:pointer;text-align:left}
+.btn:hover{background:rgba(255,255,255,0.03)}
+.btn.correct{border-color:#86efac;background:linear-gradient(90deg,#bbf7d0,#86efac);color:#053018;box-shadow:0 6px 18px rgba(6,120,87,0.08)}
+.btn.wrong{border-color:#fecaca;background:linear-gradient(90deg,#ffd7d7,#fecaca);color:#3b0303;box-shadow:0 6px 18px rgba(185,28,28,0.06)}
+.controls{display:flex;justify-content:space-between;align-items:center;margin-top:18px}
+.small{font-size:13px;color:var(--muted)}
+.progress{height:10px;background:rgba(255,255,255,0.04);border-radius:999px;overflow:hidden}
+.progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#7c3aed);width:0%}
+.center{display:flex;justify-content:center;align-items:center}
+.score{font-size:22px;font-weight:700}
+.footer-note{font-size:12px;color:var(--muted);margin-top:12px}
+@media(min-width:680px){.answers{grid-template-columns:repeat(2,1fr)}}
+
+/* Homepage-specific styles */
+.home-hero{background:linear-gradient(135deg,#f8fafc 0%,#eef2ff 100%);color:#0b1220;padding:18px;border-radius:10px}
+.home-hero .title{font-size:24px;color:#071633;margin:0}
+.home-hero .meta{color:#334155;margin-top:6px}
+
+/* Landing page hero copy — stronger contrast and readable sizing */
+body.landing .hero-copy{
+	color: #0b1220; /* deep navy for strong contrast on light backgrounds */
+	font-size: 18px;
+	line-height: 1.5;
+	font-weight: 500;
+	margin: 0 auto;
+	letter-spacing: 0.1px;
+}
+
+/* Home hero meta tweak — reuse hero-copy styles for consistency */
+.home-hero .hero-copy{ color:#0b1220; font-size:18px; line-height:1.45; font-weight:500 }
+
+.home-hero .small-copy{ color:#475569; font-size:14px; line-height:1.4 }
+
+.category-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.category-grid .cat{display:flex;align-items:center;justify-content:center;padding:14px;border-radius:10px;text-decoration:none;color:white;font-weight:700}
+.category-grid .cat:hover{transform:translateY(-4px);box-shadow:0 8px 20px rgba(2,6,23,0.12);transition:transform 160ms ease}
+.category-grid .art{background:#ef4444;font-size:18px}
+.category-grid .lit{background:#f97316;font-size:16px}
+.category-grid .sci{background:#06b6d4;font-size:18px}
+.category-grid .hist{background:#7c3aed;font-size:15px}
+.category-grid .geo{background:#10b981;font-size:16px}
+.category-grid .sport{background:#efb84d;color:#111827;font-size:16px}
+.category-grid .tech{background:#0ea5e9;font-size:18px}
+.category-grid .music{background:#db2777;font-size:16px}
+.category-grid .movies{background:#6366f1;font-size:16px}
+.category-grid .lang{background:#8b5cf6;font-size:15px}
+.category-grid .math{background:#06b6d4;font-size:16px}
+.category-grid .gen{background:#94a3b8;color:#08111a;font-size:15px}
+
+@media(max-width:760px){.category-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* Extra visual polish appended safely */
+body{background-repeat:no-repeat;background-size:cover}
+.container{backdrop-filter: blur(4px)}
+.card{border-radius:16px}
+.cat .cat-icon{font-size:20px;margin-right:8px}
+.cat .cat-label{font-size:15px}
+
+/* Slightly larger hero on wide screens */
+@media(min-width:900px){
+	.home-hero .title{font-size:28px}
+	.home-hero .meta{font-size:15px}
+}
+
+/* subtle focus styles for accessibility */
+.cat:focus{outline:3px solid rgba(255,255,255,0.12);outline-offset:4px}
+.btn:focus{outline:3px solid rgba(255,255,255,0.08);outline-offset:3px}
+
+/* High-contrast text for category background pages
+	 When viewing a category background we add `category-text-dark` to <body>
+	 to ensure UI text and buttons are very clear and readable on top of images.
+*/
+body.category-text-dark{
+	color: #071633; /* very dark blue for strong contrast */
+}
+body.category-text-dark .card{
+	background: rgba(255,255,255,0.92); /* lighter card to separate content from busy images */
+	color: inherit;
+}
+body.category-text-dark .title,
+body.category-text-dark .meta,
+body.category-text-dark .question,
+body.category-text-dark .small,
+body.category-text-dark .cat-label,
+body.category-text-dark .score,
+body.category-text-dark .footer-note{
+	color: #071633;
+}
+body.category-text-dark .btn{
+	color: #071633;
+	background: rgba(255,255,255,0.86);
+	border-color: rgba(7,22,51,0.06);
+}
+body.category-text-dark .btn:hover{ background: rgba(255,255,255,0.95); }
+body.category-text-dark .btn.correct{ border-color:#bbf7d0; background:linear-gradient(90deg,rgba(187,247,208,0.9),rgba(134,239,172,0.8)); color:#052013 }
+body.category-text-dark .btn.wrong{ border-color:#ffd7d7; background:linear-gradient(90deg,rgba(255,215,215,0.9),rgba(254,202,202,0.8)); color:#2b0505 }
+
+

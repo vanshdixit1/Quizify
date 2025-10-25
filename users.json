@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1761218501520,
+    "username": "vansh",
+    "passwordHash": "$2b$10$FhfXO5LauskHUHT6oFi.i.5fb55AFnQvP39efYSwR6GTbp23rxpoC",
+    "createdAt": "2025-10-23T11:21:41.520Z",
+    "attempts": [
+      {
+        "category": "Literature",
+        "score": 2,
+        "total": 5,
+        "createdAt": "2025-10-25T11:06:22.131Z"
+      }
+    ]
+  },
+  {
+    "id": 1761229014724,
+    "username": "ui_test_user",
+    "passwordHash": "$2b$10$5fTKjT6Yo//HXo3fgRPFBeVJsLILt5DnbVwMRxy9/O0Xaj7AfDOoG",
+    "createdAt": "2025-10-23T14:16:54.724Z"
+  },
+  {
+    "id": 1761229136496,
+    "username": "new_user_for_test",
+    "passwordHash": "$2b$10$uZLLT7C8t.VomX6nZvmybeZKT5zT4F8gXDoJCDod.JQBpEuennT4K",
+    "createdAt": "2025-10-23T14:18:56.496Z"
+  },
+  {
+    "id": 1761230238402,
+    "username": "web_ui_try",
+    "passwordHash": "$2b$10$AUcH9Mk/HVOz2m1aibT79.3GuckMZ2Hu3iCn1juxVLv.EhIwEcx3y",
+    "createdAt": "2025-10-23T14:37:18.402Z"
+  },
+  {
+    "id": 1761384892074,
+    "username": "manik",
+    "passwordHash": "$2b$10$t4Bk/mcqDRI8hdQTcpgpw.QI7ER5FcPTTOGoRKFkcNbwuwBboDCNi",
+    "createdAt": "2025-10-25T09:34:52.074Z"
+  },
+  {
+    "id": 1761400126610,
+    "username": "divya",
+    "passwordHash": "$2b$10$QfGSik1plBdXtyzFQQKCm.Sw98rr6Z98FVJnXqCCZ14bke7pcTXte",
+    "createdAt": "2025-10-25T13:48:46.610Z",
+    "attempts": []
+  }
+]

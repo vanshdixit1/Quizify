@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Simple Quiz</title>
+  <link rel="stylesheet" href="styles.css?v=1.1">
+  <!-- Preload art & science backgrounds to ensure they render quickly when a category is selected -->
+  <link rel="preload" as="image" href="https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=1600&q=60">
+  <link rel="preload" as="image" href="https://images.unsplash.com/photo-1581091012184-7b3b3c8a1b1f?auto=format&fit=crop&w=1600&q=60">
+  <script>
+    // If opened directly without a category, redirect to the landing page.
+    (function(){
+      try{
+        const params = new URLSearchParams(window.location.search);
+        if(!params.has('cat')){
+          // don't redirect if already on landing or home
+          if(!/landing\.html$/.test(window.location.pathname)){
+            window.location.replace('landing.html');
+          }
+        }
+      }catch(e){ /* ignore in environments without URLSearchParams */ }
+    })();
+  </script>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <div>
+          <div class="title">Quiz</div>
+          <div class="meta">High score: 0</div>
+          <div class="small" id="categoryLabel" style="margin-top:6px">All categories</div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center">
+          
+          <a id="homeLink" class="btn" href="http://localhost:3001/home.html">Home</a>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:12px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:12px">
+          <button class="btn" id="timerToggle" style="margin-left:0" onclick="debugClick('timer'); try{ toggleTimer(); }catch(e){}">Use timer</button>
+          <div class="small" style="display:flex;gap:8px;align-items:center">
+            <label><input type="radio" name="timerLen" value="15">15s</label>
+            <label><input type="radio" name="timerLen" value="30" checked>30s</label>
+            <label><input type="radio" name="timerLen" value="60">60s</label>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <!-- Timer display removed per user request -->
+        </div>
+      </div>
+
+      <!-- visual countdown bar -->
+      <div style="margin-top:10px">
+        <div class="countdown-bar"><i></i></div>
+      </div>
+
+      <div class="question">Question text</div>
+      <div class="answers"></div>
+
+      <div class="controls">
+        <div style="flex:1">
+          <div class="progress"><i></i></div>
+        </div>
+        <div style="margin-left:16px">
+          <button class="next-btn btn" onclick="debugClick('next'); try{ onNext(); }catch(e){ console.error(e); }">Next</button>
+          <button class="restart-btn btn" onclick="debugClick('restart'); try{ onRestart(); }catch(e){ console.error(e); }">Restart</button>
+        </div>
+      </div>
+
+      <div class="score-wrap hidden" style="margin-top:18px">
+        <div class="center score">Your score: 0</div>
+        <div class="footer-note">High score is stored locally in your browser.</div>
+      </div>
+    </div>
+  </div>
+  <!-- Inline critical quiz page styles to bypass cached CSS if needed -->
+  <style>
+    .title{font-size:20px;font-weight:700}
+    .meta{color:#25303a}
+    .btn{background:#0b1220;color:#fff;border:none;padding:10px 14px;border-radius:8px;text-transform:uppercase;font-weight:600}
+    .countdown-bar{height:8px;background:linear-gradient(90deg,#e6e6e6,#f5f5f5);border-radius:8px;overflow:hidden}
+  </style>
+  <script>
+    // Require login: verify token with /api/me before allowing access
+    (async function(){
+      try{
+        const API_BASE = 'http://localhost:3001';
+        const token = localStorage.getItem('quizify_token');
+        if(!token){ window.location.replace(API_BASE + '/landing.html'); return; }
+        const res = await fetch(API_BASE + '/api/me',{headers:{'Authorization':'Bearer '+token}});
+        if(!res.ok){ window.location.replace(API_BASE + '/landing.html'); }
+      }catch(e){ window.location.replace('http://localhost:3001/landing.html'); }
+    })();
+  </script>
+
+  <script>
+    // Make Home link open the categories page explicitly
+    (function(){
+      try{
+        const home = document.getElementById('homeLink');
+        const API_BASE = 'http://localhost:3001';
+        if(home){
+          home.href = API_BASE + '/home.html';
+          home.addEventListener('click', (e)=>{ e.preventDefault(); window.location.href = API_BASE + '/home.html'; });
+        }
+      }catch(e){}
+    })();
+  </script>
+
+  <!-- cache-busted script include to ensure updated backgrounds load immediately -->
+  <script src="script.js?v=1.10"></script>
+  
+  <style>
+    .hidden{display:none}
+  </style>
+</body>
+</html>

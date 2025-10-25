@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Quiz Categories</title>
+  <link rel="stylesheet" href="styles.css?v=1.1">
+  <script>
+    // set a distinct homepage background image
+    (function(){
+      try{
+        document.addEventListener('DOMContentLoaded', ()=>{
+          document.body.style.backgroundImage = "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)), url('https://images.unsplash.com/photo-1517816743773-6e0fd518b4a6?auto=format&fit=crop&w=1600&q=60')";
+          document.body.style.backgroundSize = 'cover';
+          document.body.style.backgroundPosition = 'center center';
+          document.body.style.backgroundAttachment = 'fixed';
+        });
+      }catch(e){}
+    })();
+  </script>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+        <div class="home-hero" style="display:block;">
+          <div>
+            <h1 class="title">Choose a Category</h1>
+          </div>
+          <script>
+            // Require login: check token and verify with /api/me
+            (async function(){
+              try{
+                const API_BASE = 'http://localhost:3001';
+                const token = localStorage.getItem('quizify_token');
+                if(!token){ window.location.replace(API_BASE + '/landing.html'); return; }
+                const res = await fetch(API_BASE + '/api/me',{headers:{'Authorization':'Bearer '+token}});
+                if(!res.ok){ window.location.replace(API_BASE + '/landing.html'); }
+              }catch(e){ window.location.replace('http://localhost:3001/landing.html'); }
+            })();
+          </script>
+            <p class="meta hero-copy">Pick a topic and challenge yourself — quick 5-question quizzes for each category.</p>
+          </div>
+        </div>
+
+        <div style="margin-top:8px">
+          <p class="small small-copy">Select one of the categories below. You'll be taken to the quiz page with that category selected.</p>
+        </div>
+
+        <div class="category-grid" style="margin-top:12px">
+          </div>
+
+          <!-- Tab bar: Categories / My Attempts -->
+          <div class="tab-bar" style="display:flex;gap:8px;margin-top:12px">
+            <button id="tabCategories" class="btn" style="background:#e6eef8;color:#0b1220;padding:8px 12px;border-radius:8px;">Categories</button>
+            <button id="tabAttempts" class="btn" style="background:transparent;color:#0b1220;padding:8px 12px;border-radius:8px;border:1px solid rgba(11,18,32,0.06);">My Attempts</button>
+          </div>
+
+          <div id="tabContent" style="margin-top:12px">
+            <div id="categoriesPane">
+              <div class="category-grid" style="margin-top:12px">
+                <a class="cat art" href="index.html?cat=Art"><span class="cat-icon" aria-hidden="true">🎨</span><span class="cat-label">Art</span></a>
+                <a class="cat lit" href="index.html?cat=Literature"><span class="cat-icon" aria-hidden="true">📚</span><span class="cat-label">Literature</span></a>
+                <a class="cat sci" href="index.html?cat=Science"><span class="cat-icon" aria-hidden="true">🔬</span><span class="cat-label">Science</span></a>
+                <a class="cat hist" href="index.html?cat=History"><span class="cat-icon" aria-hidden="true">🏺</span><span class="cat-label">History</span></a>
+                <a class="cat geo" href="index.html?cat=Geography"><span class="cat-icon" aria-hidden="true">🌍</span><span class="cat-label">Geography</span></a>
+                <a class="cat sport" href="index.html?cat=Sports"><span class="cat-icon" aria-hidden="true">🏆</span><span class="cat-label">Sports</span></a>
+                <a class="cat tech" href="index.html?cat=Technology"><span class="cat-icon" aria-hidden="true">💻</span><span class="cat-label">Technology</span></a>
+                <a class="cat music" href="index.html?cat=Music"><span class="cat-icon" aria-hidden="true">🎵</span><span class="cat-label">Music</span></a>
+                <a class="cat movies" href="index.html?cat=Movies"><span class="cat-icon" aria-hidden="true">🎬</span><span class="cat-label">Movies</span></a>
+                <a class="cat lang" href="index.html?cat=Languages"><span class="cat-icon" aria-hidden="true">🗣️</span><span class="cat-label">Languages</span></a>
+                <a class="cat math" href="index.html?cat=Mathematics"><span class="cat-icon" aria-hidden="true">∑</span><span class="cat-label">Mathematics</span></a>
+                <a class="cat gen" href="index.html?cat=General"><span class="cat-icon" aria-hidden="true">💡</span><span class="cat-label">General Knowledge</span></a>
+              </div>
+            </div>
+
+            <div id="attemptsPane" style="display:none;position:relative;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <h3 style="margin:0">My Attempts</h3>
+                <div>
+                  <button id="clearHistoryBtn" class="btn" style="background:transparent;border:1px solid rgba(11,18,32,0.06);color:#0b1220;padding:6px 10px;border-radius:8px;">Clear history</button>
+                </div>
+              </div>
+              <div id="attemptsList" style="background:#fff;padding:12px;border-radius:10px;box-shadow:0 4px 12px rgba(2,6,23,0.06);">
+                <div id="attemptsLoading" class="small-copy">Loading your attempts…</div>
+                <div id="attemptsEmpty" class="small-copy" style="display:none">You haven't taken any tests yet. Try a quiz!</div>
+                <table id="attemptsTable" style="width:100%;border-collapse:collapse;display:none;margin-top:8px">
+                  <thead>
+                    <tr style="text-align:left;color:#334155;font-weight:600"><th>Category</th><th>Score</th><th>Date</th></tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+                <div id="clearMsg" class="small-copy" style="margin-top:10px;display:none"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+  <div class="footer-note" style="margin-top:18px"></div>
+    </div>
+  </div>
+  <!-- Inline critical home styles to bypass cached CSS if needed -->
+  <style>
+    .home-hero .hero-copy{color:#0b1220;font-size:18px;line-height:1.45;font-weight:500;margin:0}
+    .small-copy{color:#495066;font-size:13px}
+    .btn{background:#0b1220;color:#fff;border:none;padding:10px 14px;border-radius:8px;text-decoration:none;text-transform:uppercase;font-weight:600}
+    .category-grid .cat{border-radius:10px;padding:10px 12px;text-decoration:none}
+    /* My Attempts content should use dark black text for readability */
+    #attemptsPane, #attemptsList, #attemptsTable, #attemptsTable th, #attemptsTable td, #attemptsEmpty, #attemptsLoading {
+      color: #000000 !important;
+    }
+  </style>
+  <!-- floating sign-out button: fixed top-right so layout isn't disturbed -->
+  <button id="signOutBtn" class="btn" style="position:fixed;top:14px;right:14px;z-index:99999;padding:8px 10px;border-radius:8px;background:rgba(11,18,32,0.9);">Sign out</button>
+  <script>
+    (function(){
+      const btn = document.getElementById('signOutBtn');
+      if(!btn) return;
+      btn.addEventListener('click', ()=>{
+        try{ localStorage.removeItem('quizify_token'); }catch(e){}
+        window.location.replace('landing.html');
+      });
+    })();
+  </script>
+  <script>
+    // Tabs and attempts loader
+    (function(){
+  const tabCats = document.getElementById('tabCategories');
+  const tabAtt = document.getElementById('tabAttempts');
+      const catsPane = document.getElementById('categoriesPane');
+      const attPane = document.getElementById('attemptsPane');
+      const attemptsLoading = document.getElementById('attemptsLoading');
+      const attemptsEmpty = document.getElementById('attemptsEmpty');
+      const attemptsTable = document.getElementById('attemptsTable');
+      const attemptsBody = attemptsTable && attemptsTable.querySelector('tbody');
+
+      function showPane(name){
+        // hide all
+        catsPane.style.display='none'; attPane.style.display='none';
+        tabCats.style.opacity='0.7'; tabAtt.style.opacity='0.7';
+        if(name==='cats'){
+          catsPane.style.display='block'; tabCats.style.opacity='1';
+        }else if(name==='attempts'){
+          attPane.style.display='block'; tabAtt.style.opacity='1';
+        }
+      }
+
+      tabCats.addEventListener('click', ()=> showPane('cats'));
+      tabAtt.addEventListener('click', ()=>{ showPane('attempts'); loadAttempts(); });
+
+      async function loadAttempts(){
+        if(!attemptsBody) return;
+        attemptsLoading.style.display='block'; attemptsEmpty.style.display='none'; attemptsTable.style.display='none';
+        const token = localStorage.getItem('quizify_token');
+        if(!token){ window.location.replace('landing.html'); return; }
+        try{
+          const API_BASE = 'http://localhost:3001';
+          console.log('loadAttempts: token present?', !!token);
+          const res = await fetch(API_BASE + '/api/attempts/me',{headers:{'Authorization':'Bearer '+token}});
+          const text = await res.text();
+          let data = {};
+          try{ data = text ? JSON.parse(text) : {}; }catch(e){ data = {}; }
+          if(!res.ok){
+            if(res.status===401) return window.location.replace('landing.html');
+            console.warn('loadAttempts: server returned', res.status, text);
+            attemptsLoading.textContent = `Failed to load attempts: ${res.status} - ${text}`;
+            return;
+          }
+          console.log('loadAttempts: response OK:', data);
+          const rows = data.attempts || [];
+          attemptsBody.innerHTML = '';
+          if(rows.length===0){ attemptsEmpty.style.display='block'; attemptsLoading.style.display='none'; attemptsTable.style.display='none'; return; }
+          for(const r of rows){
+            const tr = document.createElement('tr');
+            const d = new Date(r.createdAt || r.date || Date.now());
+            const totalVal = (r.total !== undefined && r.total !== null) ? String(r.total) : '?';
+            const scoreText = `${r.score != null ? r.score : 0} / ${totalVal}`;
+            tr.innerHTML = `<td style="padding:8px 6px;border-bottom:1px solid #eef">${escapeHtml(r.category||'')}</td><td style="padding:8px 6px;border-bottom:1px solid #eef">${escapeHtml(scoreText)}</td><td style="padding:8px 6px;border-bottom:1px solid #eef">${escapeHtml(d.toLocaleString())}</td>`;
+            attemptsBody.appendChild(tr);
+          }
+          attemptsTable.style.display='table'; attemptsLoading.style.display='none'; attemptsEmpty.style.display='none';
+        }catch(e){ attemptsLoading.textContent = 'Failed to load attempts.'; }
+      }
+
+      // Clear history button inside attempts pane (top-right)
+      const clearBtn = document.getElementById('clearHistoryBtn');
+      const clearMsg = document.getElementById('clearMsg');
+      if(clearBtn){
+        clearBtn.addEventListener('click', async ()=>{
+          if(!confirm('Are you sure you want to permanently delete your attempt history?')) return;
+          try{
+            clearMsg.style.display='block'; clearMsg.textContent = 'Clearing…';
+            const API_BASE = 'http://localhost:3001';
+            const token = localStorage.getItem('quizify_token');
+            if(!token){ window.location.replace('landing.html'); return; }
+            const res = await fetch(API_BASE + '/api/attempts/clear', {method:'POST', headers:{'Authorization':'Bearer '+token}});
+            const txt = await res.text();
+            if(!res.ok){ clearMsg.textContent = `Failed to clear: ${res.status} - ${txt}`; return; }
+            clearMsg.textContent = 'Attempt history cleared.';
+            // refresh attempts pane
+            setTimeout(()=>{ clearMsg.style.display='none'; showPane('attempts'); loadAttempts(); }, 900);
+          }catch(e){ clearMsg.style.display='block'; clearMsg.textContent = 'Failed to clear history.'; }
+        });
+      }
+
+      function escapeHtml(s){ return String(s).replace(/[&<>"]+/g, (c)=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c])); }
+
+      // start with categories pane
+      showPane('cats');
+    })();
+  </script>
+</body>
+<div id="cssBadge" style="position:fixed;right:10px;bottom:10px;background:rgba(11,18,32,0.85);color:#fff;padding:6px 8px;border-radius:6px;font-size:12px;z-index:99999;box-shadow:0 6px 16px rgba(2,6,23,0.3)">styles v1.1</div>
+</html>
