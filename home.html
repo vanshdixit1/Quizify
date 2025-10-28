@@ -32,10 +32,10 @@
               try{
                 const API_BASE = 'http://localhost:3001';
                 const token = localStorage.getItem('quizify_token');
-                if(!token){ window.location.replace('landing.html'); return; }
+                if(!token){ window.location.replace(API_BASE + '/landing.html'); return; }
                 const res = await fetch(API_BASE + '/api/me',{headers:{'Authorization':'Bearer '+token}});
-                if(!res.ok){ window.location.replace('landing.html'); }
-              }catch(e){ window.location.replace('landing.html'); }
+                if(!res.ok){ window.location.replace(API_BASE + '/landing.html'); }
+              }catch(e){ window.location.replace('http://localhost:3001/landing.html'); }
             })();
           </script>
             <p class="meta hero-copy">Pick a topic and challenge yourself — quick 5-question quizzes for each category.</p>
@@ -50,9 +50,9 @@
           </div>
 
           <!-- Tab bar: Categories / My Attempts -->
-          <div class="tab-bar" style="margin-top:12px">
-            <button id="tabCategories" class="btn tab-btn">Categories</button>
-            <button id="tabAttempts" class="btn tab-btn">My Attempts</button>
+          <div class="tab-bar" style="display:flex;gap:8px;margin-top:12px">
+            <button id="tabCategories" class="btn" style="background:#e6eef8;color:#0b1220;padding:8px 12px;border-radius:8px;">Categories</button>
+            <button id="tabAttempts" class="btn" style="background:transparent;color:#0b1220;padding:8px 12px;border-radius:8px;border:1px solid rgba(11,18,32,0.06);">My Attempts</button>
           </div>
 
           <div id="tabContent" style="margin-top:12px">
@@ -108,8 +108,42 @@
     #attemptsPane, #attemptsList, #attemptsTable, #attemptsTable th, #attemptsTable td, #attemptsEmpty, #attemptsLoading {
       color: #000000 !important;
     }
+
+    /* Chatbot widget styles */
+  /* moved to bottom-left and sized for text label */
+  .chatbot-btn{position:fixed;left:18px;bottom:18px;min-width:140px;height:52px;border-radius:999px;background:linear-gradient(90deg,#7c3aed,#06b6d4);color:#fff;border:none;display:inline-flex;align-items:center;justify-content:center;font-size:15px;padding:0 16px;gap:8px;box-shadow:0 12px 30px rgba(7,22,51,0.2);z-index:100050}
+  .chatbot-window{position:fixed;left:18px;bottom:86px;width:320px;max-width:calc(100% - 40px);height:420px;border-radius:12px;background:#fff;box-shadow:0 20px 60px rgba(2,6,23,0.16);z-index:100050;display:flex;flex-direction:column;overflow:hidden}
+    .chatbot-header{background:linear-gradient(90deg,#7c3aed,#06b6d4);color:#fff;padding:12px 14px;font-weight:700;display:flex;align-items:center;justify-content:space-between}
+    .chatbot-messages{flex:1;padding:12px;overflow:auto;background:linear-gradient(180deg,rgba(7,22,51,0.02),rgba(7,22,51,0.01));}
+    .chatbot-input{display:flex;padding:10px;border-top:1px solid rgba(0,0,0,0.06);gap:8px}
+    .chatbot-input input{flex:1;padding:10px;border-radius:8px;border:1px solid rgba(11,18,32,0.08)}
+    .chatbot-msg{margin-bottom:10px;display:block}
+  .chatbot-msg.bot{background:#f1f5f9;padding:8px 10px;border-radius:8px;max-width:88%;color:#000}
+    .chatbot-msg.user{background:linear-gradient(90deg,#7c3aed,#06b6d4);color:#fff;padding:8px 10px;border-radius:8px;align-self:flex-end;max-width:88%}
+  .chat-suggestions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .chat-suggestion{background:rgba(11,18,32,0.06);padding:6px 8px;border-radius:8px;font-size:13px;cursor:pointer;color:#000}
+    @media(max-width:480px){.chatbot-window{right:10px;left:10px;width:auto;height:360px}}
   </style>
   <!-- floating sign-out button: fixed top-right so layout isn't disturbed -->
+  <!-- Help Chatbot widget (bottom-left) -->
+  <button id="chatbotToggle" class="chatbot-btn" aria-label="Help Chatbot">💬 Help Chatbot</button>
+  <div id="chatbotWindow" class="chatbot-window" style="display:none" role="dialog" aria-label="Help Chatbot">
+    <div class="chatbot-header">Help Chatbot <button id="chatbotClose" style="background:transparent;border:none;color:rgba(255,255,255,0.9);font-weight:700;cursor:pointer">✕</button></div>
+    <div class="chatbot-messages" id="chatbotMessages">
+      <div class="chatbot-msg bot">Hi — I'm QuizBot. I can help with categories, timers, and your attempts. Try: "How do I take a quiz?"</div>
+    </div>
+    <div style="padding:8px 12px">
+      <div class="chat-suggestions">
+        <div class="chat-suggestion">How do I take a quiz?</div>
+        <div class="chat-suggestion">What is the timer?</div>
+        <div class="chat-suggestion">Show my attempts</div>
+      </div>
+    </div>
+    <div class="chatbot-input">
+      <input id="chatbotInput" placeholder="Ask QuizBot..." aria-label="Ask QuizBot" />
+      <button id="chatbotSend" class="btn" style="padding:8px 10px">Send</button>
+    </div>
+  </div>
   <button id="signOutBtn" class="btn" style="position:fixed;top:14px;right:14px;z-index:99999;padding:8px 10px;border-radius:8px;background:rgba(11,18,32,0.9);">Sign out</button>
   <script>
     (function(){
@@ -121,64 +155,46 @@
       });
     })();
   </script>
-  <!-- FAQ / Help Chatbot widget: lightweight client-only helper -->
-  <button id="helpChatBtn" aria-label="Open Help Chatbot">💬 Help Chatbot</button>
-  <div id="helpChatPanel" role="dialog" aria-label="Help chat">
-    <div class="hc-header">
-      <div class="hc-title">Quizify Help</div>
-      <button id="hcClose" aria-label="Close" style="background:transparent;border:none;color:inherit;font-weight:700;">✕</button>
-    </div>
-    <div class="hc-body">
-      <div id="hcMessages">
-        <div class="hc-empty">Hi — ask me about quizzes, timers, or your attempts. Try: "how many questions", "timer", "clear history"</div>
-      </div>
-    </div>
-    <div class="hc-footer">
-      <input id="hcInput" class="hc-input" placeholder="Type a question (e.g. how to use timer)" />
-      <button id="hcSend" class="hc-send">Send</button>
-    </div>
-  </div>
   <script>
+    // Chatbot behavior (client-only helper)
     (function(){
-      // Minimal, local-only FAQ responder. Non-invasive and isolated.
-      const btn = document.getElementById('helpChatBtn');
-      const panel = document.getElementById('helpChatPanel');
-      const closeBtn = document.getElementById('hcClose');
-      const send = document.getElementById('hcSend');
-      const input = document.getElementById('hcInput');
-      const messages = document.getElementById('hcMessages');
+      const toggle = document.getElementById('chatbotToggle');
+      const win = document.getElementById('chatbotWindow');
+      const closeBtn = document.getElementById('chatbotClose');
+      const messages = document.getElementById('chatbotMessages');
+      const input = document.getElementById('chatbotInput');
+      const send = document.getElementById('chatbotSend');
+      const suggestions = document.querySelectorAll('.chat-suggestion');
 
-      const FAQ = [
-        {q:['how many','questions','how many questions'], a:'Each quiz uses 5 questions by default. You can change questions per quiz in settings if available.'},
-        {q:['timer','time','how long'], a:'Enable the timer from the quiz page. You can choose 15, 30, or 60 seconds before starting.'},
-        {q:['clear','history','clear history'], a:'Open "My Attempts", then click the "Clear history" button to permanently delete your attempts.'},
-        {q:['login','sign in','register','signup'], a:'Use the landing page to register or sign in. After registering you must sign in manually.'},
-        {q:['score','result','submit'], a:'Your score is recorded as "obtained / total" and visible in My Attempts after submission.'},
-        {q:['categories','choose category'], a:'Select a category from the Categories grid to start a 5-question quiz for that topic.'}
-      ];
-
-      function addMessage(text, who='bot'){
-        // remove empty placeholder
-        const empty = messages.querySelector('.hc-empty'); if(empty) empty.remove();
-        const wrap = document.createElement('div'); wrap.className = 'hc-msg ' + (who==='user' ? 'user' : 'bot');
-        const bubble = document.createElement('div'); bubble.className = 'bubble'; bubble.textContent = text;
-        wrap.appendChild(bubble); messages.appendChild(wrap); messages.scrollTop = messages.scrollHeight;
+      if(!toggle || !win) return;
+      function open(){ win.style.display='flex'; toggle.style.display='none'; input.focus(); scrollBottom(); }
+      function close(){ win.style.display='none'; toggle.style.display='flex'; }
+      function addMsg(text, who){
+        const d = document.createElement('div'); d.className = 'chatbot-msg ' + (who==='user'?'user':'bot'); d.textContent = text;
+        messages.appendChild(d); scrollBottom();
       }
+      function scrollBottom(){ messages.scrollTop = messages.scrollHeight; }
 
-      function respondTo(text){
-        if(!text || !text.trim()) return addMessage('Please type a question or keyword.', 'bot');
+      function botReply(text){
+        // simple keyword matching
         const t = text.toLowerCase();
-        for(const item of FAQ){
-          for(const k of item.q){ if(t.includes(k)){ return addMessage(item.a, 'bot'); } }
-        }
-        // fallback suggestions
-        addMessage('I didn\'t catch that. Try: "timer", "how many questions", "clear history", or "login".', 'bot');
+        if(t.includes('how') && t.includes('quiz')) return 'Pick a category and answer the 5 questions. Your score will be shown at the end and saved to your attempts if you are signed in.';
+        if(t.includes('timer')) return 'Use the "Use timer" button to enable a per-question timer. You can choose 15s, 30s, or 60s when enabling.';
+        if(t.includes('attempt')) return 'Open "My Attempts" tab to view your past scores. Use Clear history to delete them.';
+        if(t.includes('category') || t.includes('categories')) return 'Categories are listed on this page — click one to start a category-specific quiz.';
+        if(t.includes('sign')) return 'Sign in from the landing page to save your attempts. Click Sign out to clear your session.';
+        return "Sorry, I don't understand exactly — try asking about 'quiz', 'timer', or 'attempts'.";
       }
 
-      btn.addEventListener('click', ()=>{ panel.classList.toggle('open'); input.focus(); });
-      closeBtn.addEventListener('click', ()=> panel.classList.remove('open'));
-      send.addEventListener('click', ()=>{ const v = input.value.trim(); if(!v) return; addMessage(v,'user'); respondTo(v); input.value=''; input.focus(); });
-      input.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); send.click(); } if(e.key==='Escape'){ panel.classList.remove('open'); } });
+      toggle.addEventListener('click', open);
+      closeBtn.addEventListener('click', close);
+      send.addEventListener('click', ()=>{
+        const v = input.value && input.value.trim(); if(!v) return; addMsg(v,'user'); input.value='';
+        setTimeout(()=>{ addMsg(botReply(v),'bot'); }, 500);
+      });
+      input.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ send.click(); e.preventDefault(); } });
+      suggestions.forEach(s=> s.addEventListener('click', (ev)=>{ const q = ev.currentTarget.textContent; addMsg(q,'user'); setTimeout(()=> addMsg(botReply(q),'bot'), 300); }));
+
     })();
   </script>
   <script>
@@ -194,20 +210,18 @@
       const attemptsBody = attemptsTable && attemptsTable.querySelector('tbody');
 
       function showPane(name){
-        // hide panes
+        // hide all
         catsPane.style.display='none'; attPane.style.display='none';
-        // manage active tab class
-        tabCats.classList.toggle('active', name==='cats');
-        tabAtt.classList.toggle('active', name==='attempts');
+        tabCats.style.opacity='0.7'; tabAtt.style.opacity='0.7';
         if(name==='cats'){
-          catsPane.style.display='block';
+          catsPane.style.display='block'; tabCats.style.opacity='1';
         }else if(name==='attempts'){
-          attPane.style.display='block';
+          attPane.style.display='block'; tabAtt.style.opacity='1';
         }
       }
 
-  tabCats.addEventListener('click', ()=> showPane('cats'));
-  tabAtt.addEventListener('click', ()=>{ showPane('attempts'); loadAttempts(); });
+      tabCats.addEventListener('click', ()=> showPane('cats'));
+      tabAtt.addEventListener('click', ()=>{ showPane('attempts'); loadAttempts(); });
 
       async function loadAttempts(){
         if(!attemptsBody) return;
@@ -266,9 +280,10 @@
 
       function escapeHtml(s){ return String(s).replace(/[&<>"]+/g, (c)=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c])); }
 
-  // start with categories pane (ensure active styling)
-  showPane('cats');
+      // start with categories pane
+      showPane('cats');
     })();
   </script>
 </body>
+<div id="cssBadge" style="position:fixed;right:10px;bottom:10px;background:rgba(11,18,32,0.85);color:#fff;padding:6px 8px;border-radius:6px;font-size:12px;z-index:99999;box-shadow:0 6px 16px rgba(2,6,23,0.3)">styles v1.1</div>
 </html>

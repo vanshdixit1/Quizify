@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Quizify</title>
   <link rel="stylesheet" href="styles.css?v=1.1">
-  <!-- Use a modern, friendly font for the landing page -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="landing">
   <div class="container">
@@ -49,8 +47,8 @@
   </div>
   <!-- Inline critical landing styles to bypass cached CSS if needed -->
   <style>
-  /* updated background: reduced overlay so the image shows through more clearly */
-  body.landing{background-image:linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02)),url('https://instasize.com/api/image/78926e0d3603bc8ee681a8caf6ebca63d52a17d591104743c3a407ced11f6f9a.jpeg');background-size:cover;background-position:center;color:#0b1220}
+  /* updated background: show the image without a white overlay so colors are more vivid */
+  body.landing{background-image: url('https://instasize.com/api/image/78926e0d3603bc8ee681a8caf6ebca63d52a17d591104743c3a407ced11f6f9a.jpeg');background-size:cover;background-position:center;color:#0b1220}
     body.landing .card{background:rgba(255,255,255,0.96);color:#08111a;border:1px solid rgba(4,6,10,0.06);box-shadow:0 10px 30px rgba(2,6,23,0.06)}
     .hero-copy{color:#0b1220;font-size:18px;line-height:1.5;font-weight:500;margin:0}
     .btn{background:#0b1220;color:#fff;border:none;padding:12px 18px;border-radius:10px;text-decoration:none;text-transform:uppercase;font-weight:600;letter-spacing:0.6px}
@@ -133,8 +131,8 @@
           if(res.ok){
             if(data && data.token) localStorage.setItem('quizify_token', data.token);
             show('Signed in as ' + (data && data.username ? data.username : username), true);
-            // redirect to local home page after successful sign in
-            setTimeout(()=>{ window.location.href = 'home.html'; }, 200);
+            // redirect to server-hosted home page after successful sign in
+            setTimeout(()=>{ window.location.href = API_BASE + '/home.html'; }, 200);
           } else {
             show((data && (data.error || data.message)) || txt || 'Login failed', false);
           }
@@ -152,16 +150,9 @@
           let data = null;
           try{ data = txt ? JSON.parse(txt) : null; } catch(e){ data = { error: txt || 'Invalid server response' }; }
           if(res.ok){
-            // Do NOT auto-sign-in after registration. Require explicit sign-in for security.
-            show('Account created. Please sign in to continue.', true);
-            // switch back to the login form so the user can sign in manually
-            setTimeout(()=>{
-              registerForm.style.display = 'none';
-              loginForm.style.display = 'block';
-              updateToggleText();
-              // clear register inputs
-              try{ document.getElementById('regUser').value = ''; document.getElementById('regPass').value = ''; }catch(e){}
-            }, 400);
+            if(data && data.token) localStorage.setItem('quizify_token', data.token);
+            show('Account created. Redirecting...', true);
+            setTimeout(()=>{ window.location.href = API_BASE + '/home.html'; }, 200);
           } else {
             show((data && (data.error || data.message)) || txt || 'Register failed', false);
           }

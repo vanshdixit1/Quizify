@@ -315,7 +315,6 @@ function renderQuestion(){
   const question = filteredQuestions[state.index];
   const curQ = question;
   el.title.textContent = `Question ${state.index + 1} of ${total}`;
-  el.meta.textContent = `High score: ${getHighScore()}`;
   // update category label
   const catLabel = $('#categoryLabel');
   catLabel.textContent = selectedCategory ? `Category: ${selectedCategory}` : 'All categories';
@@ -371,6 +370,8 @@ function onAnswer(e){
   if(selected === correct){
     state.score += 1;
   }
+  // update progress to include the answered question
+  try{ updateProgress(); }catch(e){console.warn('updateProgress failed', e); }
 }
 
 function onNext(){
@@ -389,6 +390,7 @@ function onNext(){
 
 function showResults(){
   el.scoreWrap.classList.remove('hidden');
+  try{ if(el.progressBar) el.progressBar.style.width = '100%'; }catch(e){}
   $('.score').textContent = `Your score: ${state.score} / ${filteredQuestions.length}`;
   saveHighScore(state.score);
   // record attempt to server (best-effort)
@@ -495,6 +497,7 @@ function startTimer(){
           b.disabled = true;
           if(idx === cur.answer) b.classList.add('correct');
         });
+        try{ updateProgress(); }catch(e){}
       }
       // advance after a short delay so user can see correct answer
       setTimeout(()=>{
@@ -598,6 +601,7 @@ function onVisibilityChange(){
                 b.disabled = true;
                 if(idx === cur.answer) b.classList.add('correct');
               });
+              try{ updateProgress(); }catch(e){}
             }
             setTimeout(()=>{ if(state.index < filteredQuestions.length - 1){ state.index += 1; renderQuestion(); } else { showResults(); } }, 900);
             return;
@@ -611,7 +615,9 @@ function onVisibilityChange(){
 
 function updateProgress(){
   const total = filteredQuestions.length || 1;
-  const pct = Math.round(((state.index) / (total)) * 100);
+  // include the current question as completed when state.answered is true
+  const completed = Math.min(total, state.index + (state.answered ? 1 : 0));
+  const pct = Math.round((completed / total) * 100);
   el.progressBar.style.width = pct + '%';
 }
 
@@ -619,7 +625,6 @@ function saveHighScore(score){
   const prev = getHighScore();
   if(score > prev){
     localStorage.setItem(QUIZ_KEY, String(score));
-    $('.meta').textContent = `High score: ${score}`;
   }
 }
 
@@ -632,7 +637,6 @@ function onResetHighScore(){
   if(!confirm('Reset high score? This cannot be undone.')) return;
   localStorage.removeItem(QUIZ_KEY);
   // update UI
-  $('.meta').textContent = `High score: 0`;
   alert('High score reset.');
 }
 

@@ -56,9 +56,9 @@ body.landing .card.center{
 	gap:28px;
 	align-items:center;
 	padding:42px;
-	background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(250,250,250,0.9));
+	background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(250,250,250,0.96));
 	border: 1px solid rgba(6,22,45,0.06);
-	box-shadow: 0 30px 80px rgba(3,7,18,0.12);
+	box-shadow: 0 20px 60px rgba(3,7,18,0.12);
 }
 @media(max-width:900px){
 	body.landing .card.center{ grid-template-columns: 1fr; padding:28px }
@@ -66,25 +66,15 @@ body.landing .card.center{
 
 /* Left hero column */
 body.landing .hero-left{padding-right:12px}
-/* Use Poppins for a friendly modern look on landing */
-body.landing{font-family: 'Poppins', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
-body.landing h1{font-size:52px;line-height:1.02;margin:0;color:#071633;font-weight:800;letter-spacing:-0.6px;text-shadow:0 6px 18px rgba(7,22,51,0.06)}
+body.landing h1{font-size:44px;line-height:1.02;margin:0;color:#071633}
 body.landing .hero-copy{font-size:18px;color:#334155;margin-top:12px}
 
 /* Auth card on the right */
 #authArea{background:linear-gradient(180deg,#ffffff,#f8fafc);padding:18px;border-radius:12px;border:1px solid rgba(7,22,51,0.04);box-shadow:0 10px 30px rgba(2,6,23,0.06)}
-#authArea input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(7,22,51,0.08);margin-bottom:10px;background:transparent}
+#authArea input{width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(7,22,51,0.08);margin-bottom:10px;background:transparent}
 #authArea .btn{width:100%;padding:10px 12px;border-radius:10px;background:#071633;color:#fff;border:none;font-weight:700}
 #authArea .btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(7,22,51,0.12)}
 #toggleRegister{display:block;margin-top:8px;text-align:center;color:#071633}
-
-/* stronger input focus for accessibility */
-#authArea input:focus{outline:none;box-shadow:0 6px 18px rgba(6,120,87,0.06);border-color:rgba(6,120,87,0.16);}
-
-/* slightly smaller hero on narrow screens */
-@media(max-width:900px){
-	body.landing h1{font-size:40px}
-}
 
 /* Small badges and footer */
 .landing .meta{color:#475569}
@@ -113,26 +103,6 @@ body.landing .hero-copy{font-size:18px;color:#334155;margin-top:12px}
 .category-grid .lang{background:#8b5cf6;font-size:15px}
 .category-grid .math{background:#06b6d4;font-size:16px}
 .category-grid .gen{background:#94a3b8;color:#08111a;font-size:15px}
-
-/* Tab bar styling for Categories / My Attempts */
-.tab-bar{display:flex;gap:8px}
-.tab-bar .tab-btn{padding:8px 12px;border-radius:10px;border:1px solid rgba(11,18,32,0.06);background:transparent;color:#0b1220;font-weight:700;cursor:pointer}
-.tab-bar .tab-btn:hover{opacity:0.95;transform:translateY(-2px)}
-.tab-bar .tab-btn.active{background:linear-gradient(90deg,#06b6d4,#7c3aed);color:#fff;border:none;box-shadow:0 8px 24px rgba(7,22,51,0.10)}
-
-
-/* My Attempts visual polish */
-#attemptsPane h3{margin:0;color:#071633;font-weight:800}
-#attemptsList{background:linear-gradient(180deg,rgba(255,255,255,0.98),#fff);padding:14px;border-radius:12px}
-#attemptsTable thead th{background:linear-gradient(90deg,#06b6d4,#7c3aed);color:#fff;padding:10px;border-radius:6px;text-align:left}
-#attemptsTable tbody tr{background:transparent}
-#attemptsTable tbody tr:hover{background:linear-gradient(90deg,rgba(6,182,212,0.06),rgba(124,58,237,0.04));}
-#attemptsTable td{padding:10px 8px;border-bottom:1px solid rgba(14,20,35,0.04)}
-
-/* Make the Clear history button visually consistent with the active tab */
-#clearHistoryBtn{background:linear-gradient(90deg,#06b6d4,#7c3aed);color:#fff;border:none;padding:8px 12px;border-radius:8px;font-weight:700}
-#clearHistoryBtn:hover{filter:brightness(0.98);transform:translateY(-2px)}
-
 
 @media(max-width:760px){.category-grid{grid-template-columns:repeat(2,1fr)}}
 
@@ -181,24 +151,5 @@ body.category-text-dark .btn{
 body.category-text-dark .btn:hover{ background: rgba(255,255,255,0.95); }
 body.category-text-dark .btn.correct{ border-color:#bbf7d0; background:linear-gradient(90deg,rgba(187,247,208,0.9),rgba(134,239,172,0.8)); color:#052013 }
 body.category-text-dark .btn.wrong{ border-color:#ffd7d7; background:linear-gradient(90deg,rgba(255,215,215,0.9),rgba(254,202,202,0.8)); color:#2b0505 }
-
-/* FAQ / Help Chatbot widget (lightweight, client-side only) */
-#helpChatBtn{position:fixed;right:18px;bottom:18px;min-width:56px;height:56px;padding:0 14px;border-radius:28px;background:linear-gradient(180deg,#7c3aed,#06b6d4);color:#fff;border:none;box-shadow:0 10px 30px rgba(7,22,51,0.18);display:flex;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:14px;cursor:pointer;z-index:99990}
-#helpChatPanel{position:fixed;right:18px;bottom:86px;width:340px;max-width:92vw;height:460px;border-radius:12px;background:#ffffff;color:#071633;box-shadow:0 20px 60px rgba(2,6,23,0.16);display:none;flex-direction:column;overflow:hidden;z-index:99990}
-#helpChatPanel.open{display:flex}
-#helpChatPanel .hc-header{padding:12px 14px;background:linear-gradient(90deg,#06b6d4,#7c3aed);color:#fff;display:flex;align-items:center;justify-content:space-between}
-#helpChatPanel .hc-header .hc-title{font-weight:700}
-#helpChatPanel .hc-body{flex:1;overflow:auto;padding:12px;background:linear-gradient(180deg, rgba(250,250,255,0.98), rgba(245,247,255,0.96));}
-#helpChatPanel .hc-footer{padding:10px;border-top:1px solid rgba(7,22,51,0.04);display:flex;gap:8px}
-#helpChatPanel .hc-input{flex:1;padding:8px 10px;border-radius:8px;border:1px solid rgba(7,22,51,0.06);font-size:14px}
-#helpChatPanel .hc-send{padding:8px 12px;border-radius:8px;border:none;background:#071633;color:#fff;font-weight:700;cursor:pointer}
-.hc-msg{margin-bottom:10px;display:flex}
-.hc-msg .bubble{max-width:78%;padding:10px 12px;border-radius:10px;font-size:14px;line-height:1.3}
-.hc-msg.bot{justify-content:flex-start}
-.hc-msg.bot .bubble{background:#eef2ff;color:#071633;border-radius:10px}
-.hc-msg.user{justify-content:flex-end}
-.hc-msg.user .bubble{background:linear-gradient(90deg,#06b6d4,#7c3aed);color:#fff}
-.hc-empty{color:#475569;font-size:13px;text-align:center;margin-top:18px}
-
 
 
