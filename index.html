@@ -41,11 +41,7 @@
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:12px;flex-wrap:wrap">
         <div style="display:flex;align-items:center;gap:12px">
           <button class="btn" id="timerToggle" style="margin-left:0" onclick="debugClick('timer'); try{ toggleTimer(); }catch(e){}">Use timer</button>
-          <div class="small" style="display:flex;gap:8px;align-items:center">
-            <label><input type="radio" name="timerLen" value="15">15s</label>
-            <label><input type="radio" name="timerLen" value="30" checked>30s</label>
-            <label><input type="radio" name="timerLen" value="60">60s</label>
-          </div>
+          <!-- timer length radios removed; chooser will prompt when enabling the timer -->
         </div>
         <div style="display:flex;align-items:center;gap:12px">
           <!-- Timer display removed per user request -->
@@ -89,10 +85,10 @@
       try{
         const API_BASE = 'http://localhost:3001';
         const token = localStorage.getItem('quizify_token');
-        if(!token){ window.location.replace(API_BASE + '/landing.html'); return; }
+        if(!token){ window.location.replace('landing.html'); return; }
         const res = await fetch(API_BASE + '/api/me',{headers:{'Authorization':'Bearer '+token}});
-        if(!res.ok){ window.location.replace(API_BASE + '/landing.html'); }
-      }catch(e){ window.location.replace('http://localhost:3001/landing.html'); }
+        if(!res.ok){ window.location.replace('landing.html'); }
+      }catch(e){ window.location.replace('landing.html'); }
     })();
   </script>
 
@@ -101,10 +97,9 @@
     (function(){
       try{
         const home = document.getElementById('homeLink');
-        const API_BASE = 'http://localhost:3001';
         if(home){
-          home.href = API_BASE + '/home.html';
-          home.addEventListener('click', (e)=>{ e.preventDefault(); window.location.href = API_BASE + '/home.html'; });
+          home.href = 'home.html';
+          home.addEventListener('click', (e)=>{ e.preventDefault(); window.location.href = 'home.html'; });
         }
       }catch(e){}
     })();

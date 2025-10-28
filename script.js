@@ -99,26 +99,34 @@ const BG_IMAGES = {
   // more art-focused background (paint brushes / palette)
   'Art': 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=1600&q=60',
   'Literature': 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=1600&q=60',
-  // more science-focused background (laboratory / microscope)
-  'Science': 'https://images.unsplash.com/photo-1581091012184-7b3b3c8a1b1f?auto=format&fit=crop&w=1600&q=60',
+  // more science-focused background (laboratory / microscope / equipment)
+  'Science': 'https://img.freepik.com/free-vector/hand-drawn-colorful-science-education-background_23-2148489182.jpg',
   // history-relevant background (classical ruins / columns)
-  'History': 'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?auto=format&fit=crop&w=1600&q=60',
+  'History': 'https://tse3.mm.bing.net/th/id/OIP.OF12EdAlJq4u16ZS9FznYQHaE3?rs=1&pid=ImgDetMain&o=7&rm=3',
   'Geography': 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1600&q=60',
   // sports-relevant background (stadium / action shot)
   'Sports': 'https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=1600&q=60',
   'Technology': 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&q=60',
   // music-relevant background (piano / instruments)
   'Music': 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=1600&q=60',
-  // movies-relevant background (cinema seats / screen)
-    'Movies': 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1950&q=80',
-  'Languages': 'https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&w=1600&q=60',
-  'Mathematics': 'https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?auto=format&fit=crop&w=1600&q=60',
-  'General': 'https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?auto=format&fit=crop&w=1600&q=60'
+  // movies-relevant background (cinema / film reel / projector)
+    'Movies': 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=1950&q=80',
+  'Languages': 'https://wallpaperaccess.com/full/1260521.jpg',
+  'Mathematics': 'https://th.bing.com/th/id/R.ba01d095b9f9a650e61d8f49d2b28519?rik=rVVFOj18ozgpZw&riu=http%3a%2f%2fwww.pixelstalk.net%2fwp-content%2fuploads%2f2016%2f05%2fMath-Mathematics-Formula-Wallpaper-for-PC.jpg&ehk=%2bfTho6j8Ym8wGaYhOjf%2bGXs56O7AyL38fNlEbHjIzqQ%3d&risl=&pid=ImgRaw&r=0',
+  'General': 'https://wallpapercave.com/wp/wp9440117.jpg'
 };
 
 function applyBackgroundForCategory(cat){
-  // overlay plus image — fallback to default dark gradient if not found
-  const img = BG_IMAGES[cat] || 'https://images.unsplash.com/photo-1505765050711-1e6d7f3a8f3a?auto=format&fit=crop&w=1600&q=60';
+  // overlay plus image — try a case-insensitive lookup so 'science' or 'Science' both work
+  const keys = Object.keys(BG_IMAGES);
+  const norm = String(cat || '').toLowerCase();
+  let key = keys.find(k => String(k).toLowerCase() === norm);
+  // fallback: try singular/plural variants (movie <-> movies)
+  if(!key){
+    const alt = norm.endsWith('s') ? norm.slice(0, -1) : norm + 's';
+    key = keys.find(k => String(k).toLowerCase() === alt);
+  }
+  const img = (key && BG_IMAGES[key]) || BG_IMAGES[cat] || 'https://images.unsplash.com/photo-1505765050711-1e6d7f3a8f3a?auto=format&fit=crop&w=1600&q=60';
   // use a much lighter overlay so the image reads brighter but still keeps contrast
   document.body.style.backgroundImage = `linear-gradient(180deg, rgba(3,7,18,0.18), rgba(3,7,18,0.08)), url('${img}')`;
   document.body.style.backgroundSize = 'cover';
@@ -165,15 +173,19 @@ function updateTimerLabel(){
   try{ const btn = document.getElementById('timerToggle'); if(btn) btn.textContent = timer.enabled ? `Timer: ON (${timer.total}s)` : 'Use timer'; }catch(e){}
 }
 function toggleTimer(){
-  // flip and persist
-  timer.enabled = !timer.enabled;
-  localStorage.setItem(TIMER_KEY, timer.enabled ? '1' : '0');
-  // refresh length
-  timer.total = getTimerLength() || DEFAULT_TIMER_SECONDS;
-  timer.remaining = timer.total;
+  // If we're about to enable the timer, prompt the user to choose the length
+  if(!timer.enabled){
+    showTimerChooser();
+    return;
+  }
+  // otherwise disable and persist
+  timer.enabled = false;
+  localStorage.setItem(TIMER_KEY, '0');
+  stopTimer();
+  try{ if(document.getElementById('timerDisplay')) document.getElementById('timerDisplay').textContent = '—'; }catch(e){}
+  updateCountdownBar(0);
   updateTimerLabel();
-  if(timer.enabled) startTimer(); else { stopTimer(); if(document.getElementById('timerDisplay')) document.getElementById('timerDisplay').textContent = '—'; updateCountdownBar(0); }
-  console.log('toggleTimer global: now', timer.enabled);
+  console.log('toggleTimer global: disabled');
 }
 
 function init(){
@@ -321,6 +333,12 @@ function renderQuestion(){
   updateProgress();
   el.scoreWrap.classList.add('hidden');
   state.answered = false;
+  // update next button label: show 'Submit' on the final question
+  try{
+    if(el.nextBtn){
+      el.nextBtn.textContent = (state.index < (total - 1)) ? 'Next' : 'Submit';
+    }
+  }catch(e){console.warn('Failed to update next button label', e);}
   // reset and start timer if enabled
   stopTimer();
   // set remaining and total based on selected length
@@ -525,6 +543,9 @@ function onTimerLenChange(e){
   timer.total = val;
   timer.remaining = val;
   updateCountdownBar(0);
+  // reflect the new length in any visible UI and restart if timer is active
+  try{ updateTimerLabel(); }catch(e){}
+  if(el.timerDisplay) el.timerDisplay.textContent = formatTime(timer.remaining);
   if(timer.enabled){
     stopTimer();
     startTimer();
@@ -630,6 +651,76 @@ function onResetPreferences(){
   if(el.timerDisplay) el.timerDisplay.textContent = '—';
   updateCountdownBar(0);
   alert('Preferences reset.');
+}
+
+// create and show a small chooser UI near the timer button so the user selects 15/30/60
+function showTimerChooser(){
+  // avoid duplicates
+  if(document.getElementById('timerChooser')) return;
+  const btn = el.timerToggle || document.getElementById('timerToggle');
+  const chooser = document.createElement('div');
+  chooser.id = 'timerChooser';
+  chooser.style.position = 'absolute';
+  chooser.style.zIndex = 99999;
+  chooser.style.background = 'rgba(255,255,255,0.98)';
+  chooser.style.border = '1px solid rgba(0,0,0,0.08)';
+  chooser.style.boxShadow = '0 8px 24px rgba(2,6,23,0.12)';
+  chooser.style.padding = '8px';
+  chooser.style.borderRadius = '8px';
+  chooser.style.display = 'flex';
+  chooser.style.gap = '8px';
+  chooser.style.alignItems = 'center';
+
+  const makeBtn = (s)=>{
+    const b = document.createElement('button');
+    b.className = 'btn';
+    b.style.padding = '6px 10px';
+    b.textContent = s + 's';
+    b.addEventListener('click', ()=>{ applyTimerChoice(Number(s)); });
+    return b;
+  };
+  chooser.appendChild(makeBtn(15));
+  chooser.appendChild(makeBtn(30));
+  chooser.appendChild(makeBtn(60));
+
+  // cancel button
+  const cancel = document.createElement('button');
+  cancel.textContent = 'Cancel';
+  cancel.className = 'btn';
+  cancel.style.background = '#ccc';
+  cancel.style.color = '#000';
+  cancel.style.padding = '6px 10px';
+  cancel.addEventListener('click', ()=>{ chooser.remove(); });
+  chooser.appendChild(cancel);
+
+  document.body.appendChild(chooser);
+  // position near the timer toggle button
+  try{
+    const r = (btn && btn.getBoundingClientRect && btn.getBoundingClientRect()) || { left: 20, top: 20, height: 24 };
+    chooser.style.left = (window.scrollX + r.left) + 'px';
+    chooser.style.top = (window.scrollY + r.top + r.height + 6) + 'px';
+  }catch(e){ console.warn('positioning chooser failed', e); }
+  // close when clicking outside
+  const onDocClick = (ev)=>{
+    if(!chooser.contains(ev.target) && ev.target !== btn){ chooser.remove(); document.removeEventListener('click', onDocClick); }
+  };
+  setTimeout(()=>{ document.addEventListener('click', onDocClick); }, 10);
+}
+
+function applyTimerChoice(seconds){
+  try{ localStorage.setItem(TIMER_LEN_KEY, String(seconds)); }catch(e){}
+  timer.total = seconds;
+  timer.remaining = seconds;
+  // persist enabled
+  timer.enabled = true;
+  try{ localStorage.setItem(TIMER_KEY, '1'); }catch(e){}
+  updateTimerLabel();
+  if(el.timerDisplay) el.timerDisplay.textContent = formatTime(timer.remaining);
+  // remove chooser if present
+  const c = document.getElementById('timerChooser'); if(c) c.remove();
+  // restart timer
+  stopTimer();
+  startTimer();
 }
 
 window.addEventListener('DOMContentLoaded', init);

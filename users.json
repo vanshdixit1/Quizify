@@ -4,14 +4,7 @@
     "username": "vansh",
     "passwordHash": "$2b$10$FhfXO5LauskHUHT6oFi.i.5fb55AFnQvP39efYSwR6GTbp23rxpoC",
     "createdAt": "2025-10-23T11:21:41.520Z",
-    "attempts": [
-      {
-        "category": "Literature",
-        "score": 2,
-        "total": 5,
-        "createdAt": "2025-10-25T11:06:22.131Z"
-      }
-    ]
+    "attempts": []
   },
   {
     "id": 1761229014724,
@@ -43,5 +36,30 @@
     "passwordHash": "$2b$10$QfGSik1plBdXtyzFQQKCm.Sw98rr6Z98FVJnXqCCZ14bke7pcTXte",
     "createdAt": "2025-10-25T13:48:46.610Z",
     "attempts": []
+  },
+  {
+    "id": 1761633576682,
+    "username": "puran",
+    "passwordHash": "$2b$10$FS7ce94xR7pB3S3nNmm0nen7YqTthzC1O57mfdF543qDQq59tNEZK",
+    "createdAt": "2025-10-28T06:39:36.682Z",
+    "attempts": []
+  },
+  {
+    "id": 1761660482496,
+    "username": "tanmay",
+    "passwordHash": "$2b$10$Tbev.W0yDHpIrjXqYz7dreAcs1VJ9v2FYUkEliDyf/4v0YVKZhGNy",
+    "createdAt": "2025-10-28T14:08:02.496Z"
+  },
+  {
+    "id": 1761660535718,
+    "username": "arnav",
+    "passwordHash": "$2b$10$ocCn56fRrVCQCrdKquUJYuU9n5QYs8UtV3huUkXHCUVT/LN7QjCBW",
+    "createdAt": "2025-10-28T14:08:55.718Z"
+  },
+  {
+    "id": 1761660860870,
+    "username": "aryan",
+    "passwordHash": "$2b$10$SAuXX0w7Sl4ie9LYFQ96.OorCCpqVOHJ4S7VMGNl2FQfKoYNQtfgu",
+    "createdAt": "2025-10-28T14:14:20.870Z"
   }
 ]

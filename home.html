@@ -32,10 +32,10 @@
               try{
                 const API_BASE = 'http://localhost:3001';
                 const token = localStorage.getItem('quizify_token');
-                if(!token){ window.location.replace(API_BASE + '/landing.html'); return; }
+                if(!token){ window.location.replace('landing.html'); return; }
                 const res = await fetch(API_BASE + '/api/me',{headers:{'Authorization':'Bearer '+token}});
-                if(!res.ok){ window.location.replace(API_BASE + '/landing.html'); }
-              }catch(e){ window.location.replace('http://localhost:3001/landing.html'); }
+                if(!res.ok){ window.location.replace('landing.html'); }
+              }catch(e){ window.location.replace('landing.html'); }
             })();
           </script>
             <p class="meta hero-copy">Pick a topic and challenge yourself — quick 5-question quizzes for each category.</p>
@@ -50,9 +50,9 @@
           </div>
 
           <!-- Tab bar: Categories / My Attempts -->
-          <div class="tab-bar" style="display:flex;gap:8px;margin-top:12px">
-            <button id="tabCategories" class="btn" style="background:#e6eef8;color:#0b1220;padding:8px 12px;border-radius:8px;">Categories</button>
-            <button id="tabAttempts" class="btn" style="background:transparent;color:#0b1220;padding:8px 12px;border-radius:8px;border:1px solid rgba(11,18,32,0.06);">My Attempts</button>
+          <div class="tab-bar" style="margin-top:12px">
+            <button id="tabCategories" class="btn tab-btn">Categories</button>
+            <button id="tabAttempts" class="btn tab-btn">My Attempts</button>
           </div>
 
           <div id="tabContent" style="margin-top:12px">
@@ -121,6 +121,66 @@
       });
     })();
   </script>
+  <!-- FAQ / Help Chatbot widget: lightweight client-only helper -->
+  <button id="helpChatBtn" aria-label="Open Help Chatbot">💬 Help Chatbot</button>
+  <div id="helpChatPanel" role="dialog" aria-label="Help chat">
+    <div class="hc-header">
+      <div class="hc-title">Quizify Help</div>
+      <button id="hcClose" aria-label="Close" style="background:transparent;border:none;color:inherit;font-weight:700;">✕</button>
+    </div>
+    <div class="hc-body">
+      <div id="hcMessages">
+        <div class="hc-empty">Hi — ask me about quizzes, timers, or your attempts. Try: "how many questions", "timer", "clear history"</div>
+      </div>
+    </div>
+    <div class="hc-footer">
+      <input id="hcInput" class="hc-input" placeholder="Type a question (e.g. how to use timer)" />
+      <button id="hcSend" class="hc-send">Send</button>
+    </div>
+  </div>
+  <script>
+    (function(){
+      // Minimal, local-only FAQ responder. Non-invasive and isolated.
+      const btn = document.getElementById('helpChatBtn');
+      const panel = document.getElementById('helpChatPanel');
+      const closeBtn = document.getElementById('hcClose');
+      const send = document.getElementById('hcSend');
+      const input = document.getElementById('hcInput');
+      const messages = document.getElementById('hcMessages');
+
+      const FAQ = [
+        {q:['how many','questions','how many questions'], a:'Each quiz uses 5 questions by default. You can change questions per quiz in settings if available.'},
+        {q:['timer','time','how long'], a:'Enable the timer from the quiz page. You can choose 15, 30, or 60 seconds before starting.'},
+        {q:['clear','history','clear history'], a:'Open "My Attempts", then click the "Clear history" button to permanently delete your attempts.'},
+        {q:['login','sign in','register','signup'], a:'Use the landing page to register or sign in. After registering you must sign in manually.'},
+        {q:['score','result','submit'], a:'Your score is recorded as "obtained / total" and visible in My Attempts after submission.'},
+        {q:['categories','choose category'], a:'Select a category from the Categories grid to start a 5-question quiz for that topic.'}
+      ];
+
+      function addMessage(text, who='bot'){
+        // remove empty placeholder
+        const empty = messages.querySelector('.hc-empty'); if(empty) empty.remove();
+        const wrap = document.createElement('div'); wrap.className = 'hc-msg ' + (who==='user' ? 'user' : 'bot');
+        const bubble = document.createElement('div'); bubble.className = 'bubble'; bubble.textContent = text;
+        wrap.appendChild(bubble); messages.appendChild(wrap); messages.scrollTop = messages.scrollHeight;
+      }
+
+      function respondTo(text){
+        if(!text || !text.trim()) return addMessage('Please type a question or keyword.', 'bot');
+        const t = text.toLowerCase();
+        for(const item of FAQ){
+          for(const k of item.q){ if(t.includes(k)){ return addMessage(item.a, 'bot'); } }
+        }
+        // fallback suggestions
+        addMessage('I didn\'t catch that. Try: "timer", "how many questions", "clear history", or "login".', 'bot');
+      }
+
+      btn.addEventListener('click', ()=>{ panel.classList.toggle('open'); input.focus(); });
+      closeBtn.addEventListener('click', ()=> panel.classList.remove('open'));
+      send.addEventListener('click', ()=>{ const v = input.value.trim(); if(!v) return; addMessage(v,'user'); respondTo(v); input.value=''; input.focus(); });
+      input.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); send.click(); } if(e.key==='Escape'){ panel.classList.remove('open'); } });
+    })();
+  </script>
   <script>
     // Tabs and attempts loader
     (function(){
@@ -134,18 +194,20 @@
       const attemptsBody = attemptsTable && attemptsTable.querySelector('tbody');
 
       function showPane(name){
-        // hide all
+        // hide panes
         catsPane.style.display='none'; attPane.style.display='none';
-        tabCats.style.opacity='0.7'; tabAtt.style.opacity='0.7';
+        // manage active tab class
+        tabCats.classList.toggle('active', name==='cats');
+        tabAtt.classList.toggle('active', name==='attempts');
         if(name==='cats'){
-          catsPane.style.display='block'; tabCats.style.opacity='1';
+          catsPane.style.display='block';
         }else if(name==='attempts'){
-          attPane.style.display='block'; tabAtt.style.opacity='1';
+          attPane.style.display='block';
         }
       }
 
-      tabCats.addEventListener('click', ()=> showPane('cats'));
-      tabAtt.addEventListener('click', ()=>{ showPane('attempts'); loadAttempts(); });
+  tabCats.addEventListener('click', ()=> showPane('cats'));
+  tabAtt.addEventListener('click', ()=>{ showPane('attempts'); loadAttempts(); });
 
       async function loadAttempts(){
         if(!attemptsBody) return;
@@ -204,10 +266,9 @@
 
       function escapeHtml(s){ return String(s).replace(/[&<>"]+/g, (c)=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c])); }
 
-      // start with categories pane
-      showPane('cats');
+  // start with categories pane (ensure active styling)
+  showPane('cats');
     })();
   </script>
 </body>
-<div id="cssBadge" style="position:fixed;right:10px;bottom:10px;background:rgba(11,18,32,0.85);color:#fff;padding:6px 8px;border-radius:6px;font-size:12px;z-index:99999;box-shadow:0 6px 16px rgba(2,6,23,0.3)">styles v1.1</div>
 </html>
